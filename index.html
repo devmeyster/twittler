@@ -7,9 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/style.css">
-    <script src="jquery.js"></script>
-    <script src="data_generator.js"></script>
-    <script src="moment.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/data_generator.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/moment.js"></script>
   </head>
   <body>
     <div class = "container">
@@ -23,32 +24,117 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand logo" href="#">
-              <img class="title-logo" src="images/twittler_logo1.jpeg" alt="logo">
-            </a>
           </div>
 
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Home <span class="sr-only">(current)</span></a></li>
-              <li><a href="#">Notifications</a></li>
-              <li><a href="#">Messages</a></li>
-              <li><a href="#">Discover</a></li>
+            <ul class="nav navbar-nav">             
+
+              <li class="active">
+                
+                <a href="#">
+                  <span class="glyphicon glyphicon-tower" aria-hidden="true"></span>
+                   Home 
+                  <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                <span class="glyphicon glyphicon-bell" aria-hidden="true"></span> Notifications
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+                   Messages
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <span class="glyphicon glyphicon-screenshot" aria-hidden="true"></span>
+                    Discover
+                </a>
+              </li>
+              <li>
+                <a class="navbar-brand logo" href="#">
+                  <img class="title-logo" src="images/twittler_logo1.jpeg" alt="logo">
+                </a>
+              </li>
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <li><a href="#">Tweet</a></li>
-            </ul>
-            <form class="nav navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search Twittler">
+            <div class="nav navbar-nav navbar-right">
+              <div>
+                <button type="button" data-toggle="modal" href="#tweetModal" class="btn btn-primary new-tweet-btn">
+                  <span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+                  Tweet
+                </button>
               </div>
-              <button type="submit" class="btn btn-default">Submit</button>
+            </div>
+            <form class="nav navbar-form navbar-right" role="search">
+              <div class="form-group search-input">
+                <input type="text" class="search-box" placeholder="Search Twittler">
+                <button type="submit" class="glyphicon glyphicon-search search-icon">
+
+                </button>
+              </div>
+              
             </form>
           </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
-      </nav>    
-    <!---       Tweet Timeline             -->
+      </nav>  
+
+    <!-- Main Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!---       New Tweet Modal             -->
+
+
+    <div class="modal fade" id="tweetModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">New Tweet:</h4>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="recipient-name" class="control-label">Your username:</label>
+                <input type="text" class="form-control" id="recipient-name">
+              </div>
+              <div class="form-group">
+                <label for="message-text" class="control-label">Message:</label>
+                <textarea class="form-control" id="message-text"></textarea>
+                <input type="button" name="reset_form" value="Reset Form" onclick="this.form.reset();">
+              </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary newTweetSend"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>  Tweet</button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!---       Tweetler Feed             -->
       
       <div class ="tweet-container">
         <div class="row">  
@@ -69,11 +155,25 @@
     </div>
     <script>
 
+      
       $(document).ready(function(){
         var $body = $('body');
         //$body.html('');
+        window.visitor;
+        var message;
+        
+        $(".newTweetSend").click(function(){
+            visitor = $("#recipient-name").val();
+            message = $("#message-text").val();
+  
+            if(!streams.users[visitor]){
+                streams.users[visitor]= [];
+            }
 
-
+            writeTweet(message);
+            $('#tweetModal').modal('hide');
+        });
+      
 
           setInterval(function () {
             var index = streams.home.length - 1;
@@ -85,7 +185,7 @@
               var $content = $('<div class="content"></div>')
               var $tweetHeader = $('<div class="tweet-header"></div>')
               //$tweetHeader.append('<a href="">'+'@' + tweet.user+ "</a>" + " "+tweet.created_at);
-              $tweetHeader.append('<a href="">'+'@' + tweet.user+ "</a>" + " "+d);
+              $tweetHeader.append('<a type="button" data-toggle="modal" href="#myModal" data-username='+"'"+tweet.user+"'"+'>'+'@' + tweet.user+ "</a>" + " "+d);
               var $tweet = $('<p class="tweet-text"></p>');
               $tweet.text(tweet.message+" "+index);
               $tweetHeader.appendTo($content);
@@ -94,8 +194,65 @@
               index -= 1;
             }              
           }, 3000);
+                                //-- Main Modal -->
+          $('#myModal').on('show.bs.modal', function (event) {           
+
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var username = button.data('username') //
+            var user = streams.users[username] //> streams.users.username
+            var userIndex = user.length-1
+            var modal = $(this)
+            var $content = $('<div class="content"></div>')
+
+            while(userIndex > 0){
+              var tweet = user[userIndex];
+              var d = moment(tweet.created_at).fromNow();
+              
+              var $tweetHeader = $('<div class="tweet-header"></div>')
+              $tweetHeader.append('<a>@'+ username+ "</a>" + " "+d);
+              var $tweet = $('<p class="tweet-text"></p>');
+              $tweet.html(tweet.message+" "+userIndex);
+              $tweetHeader.appendTo($content);
+              $tweet.appendTo($content);
+              userIndex -= 1;
+            }
+
+            modal.find('.modal-title').html("<a href='#'>"+"@"+username+"</a>" + " - Twittler Timeline")
+            modal.find('.modal-body').html($content)
+                       
+          })          
+
+    /*--------------------------------New Tweet Modal ---------------------
+
+          $('#myModal').on('show.bs.modal', function (event) {           
+
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var username = button.data('username') //
+            var user = streams.users[username] //> streams.users.username
+            var userIndex = user.length-1
+            var modal = $(this)
+            var $content = $('<div class="content"></div>')
+
+            while(userIndex > 0){
+              var tweet = user[userIndex];
+              var d = moment(tweet.created_at).fromNow();
+              
+              var $tweetHeader = $('<div class="tweet-header"></div>')
+              $tweetHeader.append('<a>@'+ username+ "</a>" + " "+d);
+              var $tweet = $('<p class="tweet-text"></p>');
+              $tweet.html(tweet.message+" "+userIndex);
+              $tweetHeader.appendTo($content);
+              $tweet.appendTo($content);
+              userIndex -= 1;
+            }
+
+            modal.find('.modal-title').html("<a href='#'>"+"@"+username+"</a>" + " - Twittler Timeline")
+            modal.find('.modal-body').html($content)
+                       
 
 
+            
+          })*/
 
 
       });
